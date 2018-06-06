@@ -271,8 +271,8 @@ func (c *Contractor) managedRenew(sc *proto.SafeContract, contractFunding types.
 // dropping contracts which are no longer worthwhile, and adding contracts if
 // there are not enough.
 //
-// Between each network call, the thread checks whether a maintenance iterrupt
-// signal is being sent. If so, maintannce returns, yielding to whatever thread
+// Between each network call, the thread checks whether a maintenance interrupt
+// signal is being sent. If so, maintenance returns, yielding to whatever thread
 // issued the interrupt.
 func (c *Contractor) threadedContractMaintenance() {
 	// Threading protection.
@@ -425,7 +425,7 @@ func (c *Contractor) threadedContractMaintenance() {
 			estimatedFees := contract.ContractFee.Add(contract.TxnFee).Add(contract.SiafundFee)
 			renewAmount = renewAmount.Add(estimatedFees)
 
-			// Determine if there is enough funds available to suppliement
+			// Determine if there is enough funds available to supplement
 			// with a 33% bonus, and if there is, add a 33% bonus.
 			moneyBuffer := renewAmount.Div64(3)
 			if moneyBuffer.Cmp(fundsAvailable) < 0 {
