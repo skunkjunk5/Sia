@@ -925,7 +925,7 @@ func testRenterContractEndHeight(t *testing.T, tg *siatest.TestGroup) {
 	}
 
 	// Confirm Contracts were renewed as expected, all original
-	// contracts should have been renewed
+	// contracts should have been renewed if GoodForRenew = true
 	err = build.Retry(600, 100*time.Millisecond, func() error {
 		rc, err = r.RenterContractsGet()
 		if err != nil {
@@ -992,7 +992,7 @@ func testRenterContractEndHeight(t *testing.T, tg *siatest.TestGroup) {
 	// set to reduce the chance of test potentially failing due to not enough
 	// data being uploaded?
 	// If this can be dynamically set, this could be split off into a method
-	// to be used in other tests
+	// to be used in other tests that need to force renewals of contracts
 	chunkSize := siatest.ChunkSize(100)
 
 	_, _, err = r.UploadNewFileBlocking(int(chunkSize), dataPieces, parityPieces)
@@ -1330,6 +1330,8 @@ func TestRenterSpendingReporting(t *testing.T) {
 	}
 }
 
+// checkBalanceVsSpending checks the renters confirmed siacoin balance in their
+// wallet against their reported spending
 func checkBalanceVsSpending(r *siatest.TestNode, initialBalance types.Currency) (expectedBalance, walletBalance types.Currency, err error) {
 	// Getting initial financial metrics
 	// Setting variables to easier reference
@@ -1352,9 +1354,11 @@ func checkBalanceVsSpending(r *siatest.TestNode, initialBalance types.Currency) 
 	return types.ZeroCurrency, types.ZeroCurrency, nil
 }
 
+// checkContracts confirms that contracts are renewed as expected
 func checkContracts(oldContracts, renewedContracts []api.RenterContract) error {
 	// Confirm contracts were renewed, this will also mean there are old contracts
-	// Verify there are the same number of oldContracts as renewedContracts
+	// Verify there are not more renewedContracts than there are oldContracts
+	// This would mean contracts are not getting archived
 	if len(oldContracts) < len(renewedContracts) {
 		return errors.New("Too many renewed contracts")
 	}
@@ -1368,7 +1372,8 @@ func checkContracts(oldContracts, renewedContracts []api.RenterContract) error {
 	}
 
 	for _, c := range renewedContracts {
-		// Verify that all the contracts were renewed
+		// Verify that all the contracts marked as GoodForRenew
+		// were renewed
 		if c.GoodForRenew {
 			if _, ok := initialContractIDMap[c.ID]; ok {
 				return errors.New("ID from renewedContracts found in oldContracts")
@@ -1389,6 +1394,8 @@ func checkContracts(oldContracts, renewedContracts []api.RenterContract) error {
 	return nil
 }
 
+// checkContractVsReportedSpending confirms that the spending recorded in
+// the renter's contracts matches the reported spending for the renter
 func checkContractVsReportedSpending(r *siatest.TestNode, oldContracts, renewedContracts []api.RenterContract) error {
 	// Getting financial metrics after uploads, downloads, and
 	// contract renewal
