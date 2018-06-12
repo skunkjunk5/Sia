@@ -187,7 +187,7 @@ type Renter struct {
 	//
 	// TODO: Currently the download history doesn't include repair-initiated
 	// downloads, and instead only contains user-initiated downloads.
-	downloadHistory   map[string]*download
+	downloadHistory   []*download
 	downloadHistoryMu sync.Mutex
 
 	// Upload management.
@@ -480,8 +480,6 @@ func NewCustomRenter(g modules.Gateway, cs modules.ConsensusSet, tpool modules.T
 		// will miss work altogether.
 		newDownloads: make(chan struct{}, 1),
 		downloadHeap: new(downloadChunkHeap),
-
-		downloadHistory: make(map[string]*download),
 
 		uploadHeap: uploadHeap{
 			activeChunks: make(map[uploadChunkID]struct{}),
