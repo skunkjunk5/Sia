@@ -162,7 +162,8 @@ type (
 		EndTime              time.Time `json:"endtime"`              // The time when the download fully completed.
 		Error                string    `json:"error"`                // Will be the empty string unless there was an error.
 		Received             uint64    `json:"received"`             // Amount of data confirmed and decoded.
-		StartTime            int64     `json:"starttime"`            // The time when the download was started.
+		StartTime            time.Time `json:"starttime"`            // The time when the download was started.
+		StartTimeUnix        int64     `json:"starttimeunix"`        // The time when the download was started in unix format.
 		TotalDataTransferred uint64    `json:"totaldatatransferred"` // The total amount of data transferred, including negotiation, overdrive etc.
 	}
 )
@@ -338,7 +339,7 @@ func (api *API) renterClearDownloadsAfterHandler(w http.ResponseWriter, _ *http.
 		return
 	}
 
-	err = api.renter.ClearDownloadHistoryAfter(after)
+	err = api.renter.ClearDownloadHistoryAfter(time.Unix(0, after))
 	if err != nil {
 		WriteError(w, Error{err.Error()}, http.StatusBadRequest)
 		return
@@ -356,7 +357,7 @@ func (api *API) renterClearDownloadsBeforeHandler(w http.ResponseWriter, _ *http
 		return
 	}
 
-	err = api.renter.ClearDownloadHistoryBefore(before)
+	err = api.renter.ClearDownloadHistoryBefore(time.Unix(0, before))
 	if err != nil {
 		WriteError(w, Error{err.Error()}, http.StatusBadRequest)
 		return
@@ -374,7 +375,7 @@ func (api *API) renterRemoveDownloadHandler(w http.ResponseWriter, _ *http.Reque
 		return
 	}
 
-	err = api.renter.RemoveFromDownloadHistory(timestamp)
+	err = api.renter.RemoveFromDownloadHistory(time.Unix(0, timestamp))
 	if err != nil {
 		WriteError(w, Error{err.Error()}, http.StatusBadRequest)
 		return
@@ -400,6 +401,7 @@ func (api *API) renterDownloadsHandler(w http.ResponseWriter, _ *http.Request, _
 			Error:                di.Error,
 			Received:             di.Received,
 			StartTime:            di.StartTime,
+			StartTimeUnix:        di.StartTimeUnix,
 			TotalDataTransferred: di.TotalDataTransferred,
 		})
 	}
