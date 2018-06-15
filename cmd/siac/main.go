@@ -15,8 +15,9 @@ var (
 	// Flags.
 	hostContractOutputType string // output type for host contracts
 	hostVerbose            bool   // display additional host info
-	initForce              bool   // destroy and reencrypt the wallet on init if it already exists
+	initForce              bool   // destroy and re-encrypt the wallet on init if it already exists
 	initPassword           bool   // supply a custom password when creating a wallet
+	renterDownloadAsync    bool   // Downloads files asynchronously
 	renterListVerbose      bool   // Show additional info about uploaded files.
 	renterShowHistory      bool   // Show download history in addition to download queue.
 )
@@ -125,6 +126,7 @@ func main() {
 
 	renterCmd.Flags().BoolVarP(&renterListVerbose, "verbose", "v", false, "Show additional file info such as redundancy")
 	renterDownloadsCmd.Flags().BoolVarP(&renterShowHistory, "history", "H", false, "Show download history in addition to the download queue")
+	renterFilesDownloadCmd.Flags().BoolVarP(&renterDownloadAsync, "async", "A", false, "Download file asynchronously")
 	renterFilesListCmd.Flags().BoolVarP(&renterListVerbose, "verbose", "v", false, "Show additional file info such as redundancy")
 	renterExportCmd.AddCommand(renterExportContractTxnsCmd)
 
